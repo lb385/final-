@@ -449,11 +449,15 @@ For issues, questions, or contributions, please:
 
 ## Docker Hub Repository
 
-**Backend**: `https://hub.docker.com/r/yourusername/calculator-backend`
+**Backend**: https://hub.docker.com/r/lohiteesh256/calculator-backend
 
-**Frontend**: `https://hub.docker.com/r/yourusername/calculator-frontend`
+**Frontend**: https://hub.docker.com/r/lohiteesh256/calculator-frontend
 
-Replace `yourusername` with your actual Docker Hub username.
+Pull the images:
+```bash
+docker pull lohiteesh256/calculator-backend:latest
+docker pull lohiteesh256/calculator-frontend:latest
+```
 
 ## Changelog
 
