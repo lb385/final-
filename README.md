@@ -7,6 +7,7 @@ A full-stack application featuring a FastAPI backend with user authentication an
 - **User Authentication**: Secure registration and login with JWT tokens
 - **User Profile Management**: Update username and email
 - **Password Management**: Secure password change with hashing (bcrypt)
+- **Account Management**: Delete account with confirmation
 - **Responsive UI**: Built with React and CSS
 - **Comprehensive Testing**: Unit, integration, and E2E tests
 - **Docker Deployment**: Containerized backend and frontend
@@ -244,6 +245,8 @@ pytest --cov=backend --cov-report=html
     "email": "user@example.com (optional)"
   }
   ```
+
+- `DELETE /api/account` - Delete user account permanently (requires auth, irreversible)
 
 - `POST /api/profile/change-password` - Change password (requires auth)
   ```json

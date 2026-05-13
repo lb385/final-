@@ -1,3 +1,16 @@
+"""FastAPI Backend for Calculator App with User Profile Management.
+
+Features:
+- User authentication with JWT tokens
+- User profile management (create, read, update)
+- Secure password management with bcrypt hashing
+- Protected routes with bearer token authentication
+- Comprehensive error handling and validation
+
+Author: Development Team
+Version: 1.0.0
+"""
+
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -16,7 +29,11 @@ import models
 # Create tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Calculator App with Profile Management")
+app = FastAPI(
+    title="Calculator App with Profile Management",
+    description="Full-stack application with user authentication and profile management",
+    version="1.0.0"
+)
 
 # CORS middleware
 app.add_middleware(
@@ -183,11 +200,50 @@ async def change_password(
         "user": current_user
     }
 
+@app.delete("/api/account")
+async def delete_account(
+    authorization: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Delete user account permanently.
+    
+    WARNING: This action is irreversible. All user data will be deleted.
+    
+    Args:
+        authorization: Bearer token for authentication
+        db: Database session
+        current_user: Authenticated user making the request
+        
+    Returns:
+        dict: Confirmation message
+        
+    Raises:
+        HTTPException: 401 if not authenticated
+    """
+    try:
+        db.delete(current_user)
+        db.commit()
+        return {
+            "message": "Account deleted successfully",
+            "username": current_user.username
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete account"
+        )
+
 # ============ Health Check ============
 
 @app.get("/health")
 def health_check():
-    """Health check endpoint."""
+    """Health check endpoint for service monitoring.
+    
+    Returns:
+        dict: Service status indicator
+    """
     return {"status": "healthy"}
 
 if __name__ == "__main__":

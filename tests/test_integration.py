@@ -233,6 +233,23 @@ class TestProfileRoutes:
         response = client.get("/api/profile")
         assert response.status_code == 401
 
+    def test_delete_account_success(self, auth_header):
+        """Test successful account deletion."""
+        # Delete account
+        response = client.delete(
+            "/api/account",
+            headers=auth_header
+        )
+        assert response.status_code == 200
+        assert "deleted successfully" in response.json()["message"]
+        
+        # Verify account is deleted (login should fail)
+        login_response = client.post(
+            "/api/auth/login",
+            json={"username": "testuser", "password": "TestPass123"}
+        )
+        assert login_response.status_code == 401
+
 class TestHealthCheck:
     """Test health check endpoint."""
     

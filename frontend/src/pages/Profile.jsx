@@ -124,6 +124,32 @@ function Profile({ setIsAuthenticated }) {
     navigate('/login')
   }
 
+  const handleDeleteAccount = async () => {
+    if (!window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('access_token')
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/api/account`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+      
+      // Account deleted successfully, redirect to login
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('user')
+      setIsAuthenticated(false)
+      navigate('/login')
+    } catch (err) {
+      setError('Failed to delete account. Please try again.')
+    }
+  }
+
   if (loading) {
     return <div className="profile-container"><p>Loading...</p></div>
   }
@@ -136,8 +162,11 @@ function Profile({ setIsAuthenticated }) {
           <button onClick={() => navigate('/dashboard')} className="btn-secondary">
             Dashboard
           </button>
-          <button onClick={handleLogout} className="btn-danger">
+          <button onClick={handleLogout} className="btn-secondary">
             Logout
+          </button>
+          <button onClick={handleDeleteAccount} className="btn-danger">
+            Delete Account
           </button>
         </div>
       </header>
