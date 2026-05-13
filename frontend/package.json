@@ -24,6 +24,7 @@
     "@testing-library/jest-dom": "^6.1.5",
     "@playwright/test": "^1.40.1",
     "eslint": "^8.55.0",
-    "eslint-plugin-react": "^7.33.2"
+    "eslint-plugin-react": "^7.33.2",
+    "terser": "^5.39.2"
   }
 }
