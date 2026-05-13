@@ -11,6 +11,8 @@ Author: Development Team
 Version: 1.0.0
 """
 
+import logging
+
 from fastapi import FastAPI, Depends, HTTPException, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -26,14 +28,20 @@ from schemas import (
 from security import hash_password, verify_password, create_access_token, verify_token
 import models
 
-# Create tables
-Base.metadata.create_all(bind=engine)
-
 app = FastAPI(
     title="Calculator App with Profile Management",
     description="Full-stack application with user authentication and profile management",
     version="1.0.0"
 )
+
+
+@app.on_event("startup")
+def on_startup():
+    """Create database tables when the application starts."""
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as exc:
+        logging.getLogger(__name__).warning("Database initialization skipped: %s", exc)
 
 # CORS middleware
 app.add_middleware(
@@ -63,6 +71,7 @@ async def get_current_user(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token"
             )
+        user_id = payload.get("user_id")
         username: Optional[str] = payload.get("sub")
     except Exception:
         raise HTTPException(
@@ -70,7 +79,10 @@ async def get_current_user(
             detail="Invalid token"
         )
 
-    user = db.query(User).filter(User.username == username).first()
+    if user_id is not None:
+        user = db.query(User).filter(User.id == user_id).first()
+    else:
+        user = db.query(User).filter(User.username == username).first()
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -116,7 +128,7 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
             detail="Invalid credentials"
         )
     
-    access_token = create_access_token(data={"sub": user.username})
+    access_token = create_access_token(data={"sub": user.username, "user_id": user.id})
     return {
         "access_token": access_token,
         "token_type": "bearer",
