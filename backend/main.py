@@ -11,7 +11,7 @@ Author: Development Team
 Version: 1.0.0
 """
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -45,7 +45,10 @@ app.add_middleware(
 )
 
 # Helper function to get current user from token
-async def get_current_user(authorization: Optional[str] = None, db: Session = Depends(get_db)):
+async def get_current_user(
+    authorization: Optional[str] = Header(default=None, alias="Authorization"),
+    db: Session = Depends(get_db)
+):
     if not authorization:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -124,7 +127,6 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
 
 @app.get("/api/profile", response_model=UserResponse)
 async def get_profile(
-    authorization: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -134,7 +136,6 @@ async def get_profile(
 @app.put("/api/profile", response_model=UserResponse)
 async def update_profile(
     update_data: UserUpdate,
-    authorization: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -170,7 +171,6 @@ async def update_profile(
 @app.post("/api/profile/change-password")
 async def change_password(
     password_data: PasswordChange,
-    authorization: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -202,7 +202,6 @@ async def change_password(
 
 @app.delete("/api/account")
 async def delete_account(
-    authorization: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):

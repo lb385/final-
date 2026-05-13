@@ -246,7 +246,7 @@ class TestProfileRoutes:
         # Verify account is deleted (login should fail)
         login_response = client.post(
             "/api/auth/login",
-            json={"username": "testuser", "password": "TestPass123"}
+            json={"username": "testuser", "password": "testpass123"}
         )
         assert login_response.status_code == 401
 
